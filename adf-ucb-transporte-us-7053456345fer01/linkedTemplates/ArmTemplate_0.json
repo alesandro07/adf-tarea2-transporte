@@ -1,0 +1,641 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Nombre de instancia de Data Factory",
+			"defaultValue": "adf-ucb-transporte-us-7053456345fer01"
+		},
+		"ls_blob_transporte_accountKey": {
+			"type": "secureString",
+			"metadata": "Cadena protegida para \"accountKey\"de \"ls_blob_transporte\""
+		},
+		"ls_sql_erp_password": {
+			"type": "secureString",
+			"metadata": "Cadena protegida para \"password\"de \"ls_sql_erp\""
+		},
+		"ls_blob_transporte_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://sautransporte706fer01.dfs.core.windows.net/"
+		},
+		"ls_sql_erp_properties_typeProperties_server": {
+			"type": "string",
+			"defaultValue": "sql-ucb-server-transporte-7036465645fer01.database.windows.net"
+		},
+		"ls_sql_erp_properties_typeProperties_database": {
+			"type": "string",
+			"defaultValue": "erp_transporte_db"
+		},
+		"ls_sql_erp_properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": "franklin"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/ls_blob_transporte')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobFS",
+				"typeProperties": {
+					"url": "[parameters('ls_blob_transporte_properties_typeProperties_url')]",
+					"accountKey": {
+						"type": "SecureString",
+						"value": "[parameters('ls_blob_transporte_accountKey')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ls_sql_erp')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureSqlDatabase",
+				"typeProperties": {
+					"server": "[parameters('ls_sql_erp_properties_typeProperties_server')]",
+					"database": "[parameters('ls_sql_erp_properties_typeProperties_database')]",
+					"encrypt": "mandatory",
+					"trustServerCertificate": false,
+					"authenticationType": "SQL",
+					"userName": "[parameters('ls_sql_erp_properties_typeProperties_userName')]",
+					"password": {
+						"type": "SecureString",
+						"value": "[parameters('ls_sql_erp_password')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_dw_bronce_viajes')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_sql_erp",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "AnioFuente",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "ViajeId",
+						"type": "nvarchar"
+					},
+					{
+						"name": "RutaHistoricaId",
+						"type": "nvarchar"
+					},
+					{
+						"name": "VehiculoId",
+						"type": "nvarchar"
+					},
+					{
+						"name": "FechaServicio",
+						"type": "date"
+					},
+					{
+						"name": "HoraProgramada",
+						"type": "time",
+						"scale": 7
+					},
+					{
+						"name": "HoraSalida",
+						"type": "time",
+						"scale": 7
+					},
+					{
+						"name": "HoraLlegada",
+						"type": "time",
+						"scale": 7
+					},
+					{
+						"name": "ValidacionesTarjeta",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "KmRecorridos",
+						"type": "decimal",
+						"precision": 8,
+						"scale": 1
+					},
+					{
+						"name": "EstadoViaje",
+						"type": "nvarchar"
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "ViajesAzure"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_sql_erp')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_raw_csv')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_blob_transporte",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "viajes.csv",
+						"fileSystem": "raw"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "id_viaje",
+						"type": "String"
+					},
+					{
+						"name": "cod_ruta",
+						"type": "String"
+					},
+					{
+						"name": "nro_bus",
+						"type": "String"
+					},
+					{
+						"name": "fec_servicio",
+						"type": "String"
+					},
+					{
+						"name": "hora_programada",
+						"type": "String"
+					},
+					{
+						"name": "hora_salida",
+						"type": "String"
+					},
+					{
+						"name": "hora_llegada",
+						"type": "String"
+					},
+					{
+						"name": "pasajeros_reportados",
+						"type": "String"
+					},
+					{
+						"name": "km_recorridos",
+						"type": "String"
+					},
+					{
+						"name": "estado_viaje",
+						"type": "String"
+					},
+					{
+						"name": "tipo_metrica",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_blob_transporte')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_raw_excel')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_blob_transporte",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Excel",
+				"typeProperties": {
+					"sheetName": "Viajes",
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "operacion_2022.xlsx",
+						"fileSystem": "raw"
+					},
+					"firstRowAsHeader": true
+				},
+				"schema": [
+					{
+						"name": "id_viaje",
+						"type": "String"
+					},
+					{
+						"name": "cod_ruta",
+						"type": "String"
+					},
+					{
+						"name": "nro_bus",
+						"type": "String"
+					},
+					{
+						"name": "fecha_servicio",
+						"type": "String"
+					},
+					{
+						"name": "hora_programada",
+						"type": "String"
+					},
+					{
+						"name": "hora_salida",
+						"type": "String"
+					},
+					{
+						"name": "hora_llegada",
+						"type": "String"
+					},
+					{
+						"name": "pasajeros_estimados",
+						"type": "String"
+					},
+					{
+						"name": "km_recorridos",
+						"type": "String"
+					},
+					{
+						"name": "estado_viaje",
+						"type": "String"
+					},
+					{
+						"name": "tipo_metrica",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_blob_transporte')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_raw_sql')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_sql_erp",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "AnioFuente",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "ViajeId",
+						"type": "nvarchar"
+					},
+					{
+						"name": "RutaHistoricaId",
+						"type": "nvarchar"
+					},
+					{
+						"name": "VehiculoId",
+						"type": "nvarchar"
+					},
+					{
+						"name": "FechaServicio",
+						"type": "date"
+					},
+					{
+						"name": "HoraProgramada",
+						"type": "time",
+						"scale": 7
+					},
+					{
+						"name": "HoraSalida",
+						"type": "time",
+						"scale": 7
+					},
+					{
+						"name": "HoraLlegada",
+						"type": "time",
+						"scale": 7
+					},
+					{
+						"name": "ValidacionesTarjeta",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "KmRecorridos",
+						"type": "decimal",
+						"precision": 8,
+						"scale": 1
+					},
+					{
+						"name": "EstadoViaje",
+						"type": "nvarchar"
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "ViajesAzure"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_sql_erp')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/df_bronze_viajes')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ds_raw_csv",
+								"type": "DatasetReference"
+							},
+							"name": "ViajesCSV"
+						},
+						{
+							"dataset": {
+								"referenceName": "ds_raw_excel",
+								"type": "DatasetReference"
+							},
+							"name": "ViajesExcel"
+						},
+						{
+							"dataset": {
+								"referenceName": "ds_raw_sql",
+								"type": "DatasetReference"
+							},
+							"name": "viajesSQL"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "ds_dw_bronce_viajes",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "select1"
+						},
+						{
+							"name": "select2"
+						},
+						{
+							"name": "select3"
+						},
+						{
+							"name": "union1"
+						},
+						{
+							"name": "derivedColumn1"
+						},
+						{
+							"name": "aggregate1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          id_viaje as string,",
+						"          cod_ruta as string,",
+						"          nro_bus as string,",
+						"          fec_servicio as string,",
+						"          hora_programada as string,",
+						"          hora_salida as string,",
+						"          hora_llegada as string,",
+						"          pasajeros_reportados as string,",
+						"          km_recorridos as string,",
+						"          estado_viaje as string,",
+						"          tipo_metrica as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     wildcardPaths:['viajes.csv']) ~> ViajesCSV",
+						"source(output(",
+						"          id_viaje as string,",
+						"          cod_ruta as string,",
+						"          nro_bus as string,",
+						"          fecha_servicio as string,",
+						"          hora_programada as string,",
+						"          hora_salida as string,",
+						"          hora_llegada as string,",
+						"          pasajeros_estimados as string,",
+						"          km_recorridos as string,",
+						"          estado_viaje as string,",
+						"          tipo_metrica as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> ViajesExcel",
+						"source(output(",
+						"          AnioFuente as string,",
+						"          ViajeId as string,",
+						"          RutaHistoricaId as string,",
+						"          VehiculoId as string,",
+						"          FechaServicio as string,",
+						"          HoraProgramada as string,",
+						"          HoraSalida as string,",
+						"          HoraLlegada as string,",
+						"          ValidacionesTarjeta as string,",
+						"          KmRecorridos as string,",
+						"          EstadoViaje as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> viajesSQL",
+						"ViajesCSV select(mapColumn(",
+						"          id_viaje,",
+						"          cod_ruta,",
+						"          nro_bus,",
+						"          fec_servicio,",
+						"          hora_programada,",
+						"          hora_salida,",
+						"          hora_llegada,",
+						"          pasajeros_reportados,",
+						"          km_recorridos,",
+						"          estado_viaje,",
+						"          tipo_metrica",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> select1",
+						"ViajesExcel select(mapColumn(",
+						"          id_viaje,",
+						"          cod_ruta,",
+						"          nro_bus,",
+						"          fec_servicio = fecha_servicio,",
+						"          hora_programada,",
+						"          hora_salida,",
+						"          hora_llegada,",
+						"          pasajeros_reportados = pasajeros_estimados,",
+						"          km_recorridos,",
+						"          estado_viaje,",
+						"          tipo_metrica",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> select2",
+						"viajesSQL select(mapColumn(",
+						"          AnioFuente,",
+						"          id_viaje = ViajeId,",
+						"          cod_ruta = RutaHistoricaId,",
+						"          nro_bus = VehiculoId,",
+						"          fec_servicio = FechaServicio,",
+						"          hora_programada = HoraProgramada,",
+						"          hora_salida = HoraSalida,",
+						"          hora_llegada = HoraLlegada,",
+						"          pasajeros_reportados = ValidacionesTarjeta,",
+						"          km_recorridos = KmRecorridos,",
+						"          estado_viaje = EstadoViaje",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> select3",
+						"select1, select2, select3 union(byName: true)~> union1",
+						"union1 derive(AnioFuente = 2022,",
+						"          fec_servicio = iifNull(toDate(fec_servicio, 'yyyy-MM-dd'), iifNull(toDate(fec_servicio, 'dd/MM/yyyy'), toDate('2022-01-01'))),",
+						"          hora_programada = iifNull(toTimestamp(iif(length(trim(toString(hora_programada))) == 5, concat(trim(toString(hora_programada)), ':00'), trim(toString(hora_programada))), 'HH:mm:ss'), toTimestamp('00:00:00', 'HH:mm:ss')),",
+						"          hora_salida = iifNull(toTimestamp(iif(length(trim(toString(hora_salida))) == 5, concat(trim(toString(hora_salida)), ':00'), trim(toString(hora_salida))), 'HH:mm:ss'), toTimestamp('00:00:00', 'HH:mm:ss')),",
+						"          hora_llegada = iifNull(toTimestamp(iif(length(trim(toString(hora_llegada))) == 5, concat(trim(toString(hora_llegada)), ':00'), trim(toString(hora_llegada))), 'HH:mm:ss'), toTimestamp('00:00:00', 'HH:mm:ss')),",
+						"          cod_ruta = iifNull(toInteger(cod_ruta), 32),",
+						"          km_recorridos = iif(isNull(km_recorridos) || length(trim(toString(km_recorridos))) == 0, toFloat(0.0), toFloat(replace(toString(km_recorridos), ',', '.'))),",
+						"          nro_bus = iifNull(toString(nro_bus), 'SIN_BUS'),",
+						"          estado_viaje = iifNull(toString(estado_viaje), 'DESCONOCIDO')) ~> derivedColumn1",
+						"derivedColumn1 aggregate(groupBy(AnioFuente,",
+						"          id_viaje),",
+						"     cod_ruta = iifNull(toInteger(first(cod_ruta)), 32),",
+						"          nro_bus = iifNull(toString(first(nro_bus)), 'SIN_BUS'),",
+						"          fec_servicio = first(fec_servicio),",
+						"          hora_programada = first(hora_programada),",
+						"          hora_salida = first(hora_salida),",
+						"          hora_llegada = first(hora_llegada),",
+						"          pasajeros_reportados = first(pasajeros_reportados),",
+						"          km_recorridos = first(km_recorridos),",
+						"          estado_viaje = iifNull(toString(first(estado_viaje)), 'DESCONOCIDO')) ~> aggregate1",
+						"aggregate1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          AnioFuente as integer,",
+						"          ViajeId as string,",
+						"          RutaHistoricaId as string,",
+						"          VehiculoId as string,",
+						"          FechaServicio as date,",
+						"          HoraProgramada as timestamp,",
+						"          HoraSalida as timestamp,",
+						"          HoraLlegada as timestamp,",
+						"          ValidacionesTarjeta as integer,",
+						"          KmRecorridos as decimal(8,1),",
+						"          EstadoViaje as string",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     truncate:true,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          AnioFuente,",
+						"          ViajeId = id_viaje,",
+						"          RutaHistoricaId = cod_ruta,",
+						"          VehiculoId = nro_bus,",
+						"          FechaServicio = fec_servicio,",
+						"          HoraProgramada = hora_programada,",
+						"          HoraSalida = hora_salida,",
+						"          HoraLlegada = hora_llegada,",
+						"          ValidacionesTarjeta = pasajeros_reportados,",
+						"          KmRecorridos = km_recorridos,",
+						"          EstadoViaje = estado_viaje",
+						"     )) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/ds_raw_csv')]",
+				"[concat(variables('factoryId'), '/datasets/ds_raw_excel')]",
+				"[concat(variables('factoryId'), '/datasets/ds_raw_sql')]",
+				"[concat(variables('factoryId'), '/datasets/ds_dw_bronce_viajes')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Pipeline_bronce')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Data flow1",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "df_bronze_viajes",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"ViajesCSV": {},
+									"ViajesExcel": {},
+									"viajesSQL": {},
+									"sink1": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": [],
+				"lastPublishTime": "2026-10-27T17:04:02Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/df_bronze_viajes')]"
+			]
+		}
+	]
+}

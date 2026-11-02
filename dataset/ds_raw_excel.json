@@ -8,7 +8,7 @@
 		"annotations": [],
 		"type": "Excel",
 		"typeProperties": {
-			"sheetName": "Viajes",
+			"sheetName": "Paradas",
 			"location": {
 				"type": "AzureBlobFSLocation",
 				"fileName": "operacion_2022.xlsx",

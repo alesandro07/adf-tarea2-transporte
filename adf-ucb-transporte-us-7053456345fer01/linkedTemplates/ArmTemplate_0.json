@@ -564,7 +564,20 @@
 						"     format: 'table',",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true,",
-						"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          AnioFuente,",
+						"          ViajeId = id_viaje,",
+						"          RutaHistoricaId = cod_ruta,",
+						"          VehiculoId = nro_bus,",
+						"          FechaServicio = fec_servicio,",
+						"          HoraProgramada = hora_programada,",
+						"          HoraSalida = hora_salida,",
+						"          HoraLlegada = hora_llegada,",
+						"          ValidacionesTarjeta = pasajeros_reportados,",
+						"          KmRecorridos = km_recorridos,",
+						"          EstadoViaje = estado_viaje",
+						"     )) ~> sink1"
 					]
 				}
 			},

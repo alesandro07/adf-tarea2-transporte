@@ -99,54 +99,57 @@
 				"schema": [
 					{
 						"name": "AnioFuente",
-						"type": "smallint",
-						"precision": 5
-					},
-					{
-						"name": "ViajeId",
-						"type": "nvarchar"
-					},
-					{
-						"name": "RutaHistoricaId",
-						"type": "nvarchar"
-					},
-					{
-						"name": "VehiculoId",
-						"type": "nvarchar"
-					},
-					{
-						"name": "FechaServicio",
-						"type": "date"
-					},
-					{
-						"name": "HoraProgramada",
-						"type": "time",
-						"scale": 7
-					},
-					{
-						"name": "HoraSalida",
-						"type": "time",
-						"scale": 7
-					},
-					{
-						"name": "HoraLlegada",
-						"type": "time",
-						"scale": 7
-					},
-					{
-						"name": "ValidacionesTarjeta",
 						"type": "int",
 						"precision": 10
 					},
 					{
-						"name": "KmRecorridos",
-						"type": "decimal",
-						"precision": 8,
-						"scale": 1
+						"name": "id_viaje",
+						"type": "varchar"
 					},
 					{
-						"name": "EstadoViaje",
-						"type": "nvarchar"
+						"name": "cod_ruta",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "nro_bus",
+						"type": "varchar"
+					},
+					{
+						"name": "fec_servicio",
+						"type": "date"
+					},
+					{
+						"name": "hora_programada",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "hora_salida",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "hora_llegada",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "pasajeros_reportados",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "km_recorridos",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "estado_viaje",
+						"type": "varchar"
 					}
 				],
 				"typeProperties": {
@@ -594,16 +597,16 @@
 						"     validateSchema: false,",
 						"     input(",
 						"          AnioFuente as integer,",
-						"          ViajeId as string,",
-						"          RutaHistoricaId as string,",
-						"          VehiculoId as string,",
-						"          FechaServicio as date,",
-						"          HoraProgramada as timestamp,",
-						"          HoraSalida as timestamp,",
-						"          HoraLlegada as timestamp,",
-						"          ValidacionesTarjeta as integer,",
-						"          KmRecorridos as decimal(8,1),",
-						"          EstadoViaje as string",
+						"          id_viaje as string,",
+						"          cod_ruta as integer,",
+						"          nro_bus as string,",
+						"          fec_servicio as date,",
+						"          hora_programada as timestamp,",
+						"          hora_salida as timestamp,",
+						"          hora_llegada as timestamp,",
+						"          pasajeros_reportados as integer,",
+						"          km_recorridos as double,",
+						"          estado_viaje as string",
 						"     ),",
 						"     deletable:false,",
 						"     insertable:true,",
@@ -616,16 +619,16 @@
 						"     errorHandlingOption: 'stopOnFirstError',",
 						"     mapColumn(",
 						"          AnioFuente,",
-						"          ViajeId = id_viaje,",
-						"          RutaHistoricaId = cod_ruta,",
-						"          VehiculoId = nro_bus,",
-						"          FechaServicio = fec_servicio,",
-						"          HoraProgramada = hora_programada,",
-						"          HoraSalida = hora_salida,",
-						"          HoraLlegada = hora_llegada,",
-						"          ValidacionesTarjeta = pasajeros_reportados,",
-						"          KmRecorridos = km_recorridos,",
-						"          EstadoViaje = estado_viaje",
+						"          id_viaje,",
+						"          cod_ruta,",
+						"          nro_bus,",
+						"          fec_servicio,",
+						"          hora_programada,",
+						"          hora_salida,",
+						"          hora_llegada,",
+						"          pasajeros_reportados,",
+						"          km_recorridos,",
+						"          estado_viaje",
 						"     )) ~> sink1"
 					]
 				}

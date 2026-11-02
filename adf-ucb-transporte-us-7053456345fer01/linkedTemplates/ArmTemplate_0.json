@@ -257,7 +257,7 @@
 				"annotations": [],
 				"type": "Excel",
 				"typeProperties": {
-					"sheetName": "Viajes",
+					"sheetName": "Paradas",
 					"location": {
 						"type": "AzureBlobFSLocation",
 						"fileName": "operacion_2022.xlsx",
@@ -403,6 +403,20 @@
 								"type": "DatasetReference"
 							},
 							"name": "csvParadas"
+						},
+						{
+							"dataset": {
+								"referenceName": "ds_dw_bronce_paradas",
+								"type": "DatasetReference"
+							},
+							"name": "source1"
+						},
+						{
+							"dataset": {
+								"referenceName": "ds_raw_excel",
+								"type": "DatasetReference"
+							},
+							"name": "source2"
 						}
 					],
 					"sinks": [
@@ -411,12 +425,21 @@
 								"referenceName": "ds_dw_bronce_paradas",
 								"type": "DatasetReference"
 							},
-							"name": "sinkBronzeParadas"
+							"name": "sink1"
 						}
 					],
 					"transformations": [
 						{
 							"name": "select1"
+						},
+						{
+							"name": "select2"
+						},
+						{
+							"name": "union1"
+						},
+						{
+							"name": "union2"
 						}
 					],
 					"scriptLines": [
@@ -424,15 +447,39 @@
 						"          nro_parada as string,",
 						"          nombre_parada as string,",
 						"          zona as string,",
-						"          latitud as double,",
-						"          longitud as double,",
-						"          fecha_desde as date,",
+						"          latitud as string,",
+						"          longitud as string,",
+						"          fecha_desde as string,",
 						"          fecha_hasta as string,",
 						"          estado as string",
 						"     ),",
 						"     allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     ignoreNoFilesFound: false) ~> csvParadas",
+						"source(output(",
+						"          nroParada as string,",
+						"          codigo as string,",
+						"          nombreParada as string,",
+						"          latitud as string,",
+						"          longitud as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> source1",
+						"source(output(",
+						"          nro_parada as string,",
+						"          nombre_parada as string,",
+						"          zona as string,",
+						"          latitud as string,",
+						"          longitud as string,",
+						"          fecha_desde as string,",
+						"          fecha_hasta as string,",
+						"          estado as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> source2",
 						"csvParadas select(mapColumn(",
 						"          nroParada = nro_parada,",
 						"          nombreParada = nombre_parada,",
@@ -445,7 +492,21 @@
 						"     ),",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true) ~> select1",
-						"select1 sink(allowSchemaDrift: true,",
+						"source2 select(mapColumn(",
+						"          nroParada = nro_parada,",
+						"          nombreParada = nombre_parada,",
+						"          zona,",
+						"          latitud,",
+						"          longitud,",
+						"          vigenciaDesde = fecha_desde,",
+						"          vigenciaHasta = fecha_hasta,",
+						"          estado",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> select2",
+						"select1, source1 union(byName: true)~> union1",
+						"union1, select2 union(byName: true)~> union2",
+						"union2 sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     deletable:false,",
 						"     insertable:true,",
@@ -454,13 +515,25 @@
 						"     format: 'table',",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true,",
-						"     errorHandlingOption: 'stopOnFirstError') ~> sinkBronzeParadas"
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          nroParada,",
+						"          nombreParada,",
+						"          zona,",
+						"          latitud,",
+						"          longitud,",
+						"          vigenciaDesde,",
+						"          vigenciaHasta,",
+						"          estado,",
+						"          codigo",
+						"     )) ~> sink1"
 					]
 				}
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/ds_raw_csv')]",
-				"[concat(variables('factoryId'), '/datasets/ds_dw_bronce_paradas')]"
+				"[concat(variables('factoryId'), '/datasets/ds_dw_bronce_paradas')]",
+				"[concat(variables('factoryId'), '/datasets/ds_raw_excel')]"
 			]
 		},
 		{
@@ -750,7 +823,9 @@
 								"parameters": {},
 								"datasetParameters": {
 									"csvParadas": {},
-									"sinkBronzeParadas": {}
+									"source1": {},
+									"source2": {},
+									"sink1": {}
 								}
 							},
 							"staging": {},

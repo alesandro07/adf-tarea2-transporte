@@ -10,54 +10,57 @@
 		"schema": [
 			{
 				"name": "AnioFuente",
-				"type": "smallint",
-				"precision": 5
-			},
-			{
-				"name": "ViajeId",
-				"type": "nvarchar"
-			},
-			{
-				"name": "RutaHistoricaId",
-				"type": "nvarchar"
-			},
-			{
-				"name": "VehiculoId",
-				"type": "nvarchar"
-			},
-			{
-				"name": "FechaServicio",
-				"type": "date"
-			},
-			{
-				"name": "HoraProgramada",
-				"type": "time",
-				"scale": 7
-			},
-			{
-				"name": "HoraSalida",
-				"type": "time",
-				"scale": 7
-			},
-			{
-				"name": "HoraLlegada",
-				"type": "time",
-				"scale": 7
-			},
-			{
-				"name": "ValidacionesTarjeta",
 				"type": "int",
 				"precision": 10
 			},
 			{
-				"name": "KmRecorridos",
-				"type": "decimal",
-				"precision": 8,
-				"scale": 1
+				"name": "id_viaje",
+				"type": "varchar"
 			},
 			{
-				"name": "EstadoViaje",
-				"type": "nvarchar"
+				"name": "cod_ruta",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "nro_bus",
+				"type": "varchar"
+			},
+			{
+				"name": "fec_servicio",
+				"type": "date"
+			},
+			{
+				"name": "hora_programada",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			},
+			{
+				"name": "hora_salida",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			},
+			{
+				"name": "hora_llegada",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			},
+			{
+				"name": "pasajeros_reportados",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "km_recorridos",
+				"type": "float",
+				"precision": 15
+			},
+			{
+				"name": "estado_viaje",
+				"type": "varchar"
 			}
 		],
 		"typeProperties": {

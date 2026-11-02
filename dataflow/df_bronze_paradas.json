@@ -1,0 +1,68 @@
+{
+	"name": "df_bronze_paradas",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_raw_csv",
+						"type": "DatasetReference"
+					},
+					"name": "csvParadas"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_dw_bronce_paradas",
+						"type": "DatasetReference"
+					},
+					"name": "sinkBronzeParadas"
+				}
+			],
+			"transformations": [
+				{
+					"name": "select1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          nro_parada as string,",
+				"          nombre_parada as string,",
+				"          zona as string,",
+				"          latitud as double,",
+				"          longitud as double,",
+				"          fecha_desde as date,",
+				"          fecha_hasta as string,",
+				"          estado as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> csvParadas",
+				"csvParadas select(mapColumn(",
+				"          nroParada = nro_parada,",
+				"          nombreParada = nombre_parada,",
+				"          zona,",
+				"          latitud,",
+				"          longitud,",
+				"          vigenciaDesde = fecha_desde,",
+				"          vigenciaHasta = fecha_hasta,",
+				"          estado",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select1",
+				"select1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> sinkBronzeParadas"
+			]
+		}
+	}
+}

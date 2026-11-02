@@ -1,0 +1,16 @@
+{
+	"name": "ds_dw_bronce_paradas",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_sql_erp",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": "bronce",
+			"table": "paradas"
+		}
+	}
+}

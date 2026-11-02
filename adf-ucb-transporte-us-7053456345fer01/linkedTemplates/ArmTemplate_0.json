@@ -957,14 +957,7 @@
 					{
 						"name": "df_bronze_paradas",
 						"type": "ExecuteDataFlow",
-						"dependsOn": [
-							{
-								"activity": "df_bronze_viajes",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
+						"dependsOn": [],
 						"policy": {
 							"timeout": "0.12:00:00",
 							"retry": 0,
@@ -992,6 +985,38 @@
 							},
 							"traceLevel": "Fine"
 						}
+					},
+					{
+						"name": "df_bronze_vehiculos",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "df_bronze_vehiculos",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"source1": {},
+									"source2": {},
+									"source3": {},
+									"sink1": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
 					}
 				],
 				"policy": {
@@ -1002,7 +1027,8 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/dataflows/df_bronze_viajes')]",
-				"[concat(variables('factoryId'), '/dataflows/df_bronze_paradas')]"
+				"[concat(variables('factoryId'), '/dataflows/df_bronze_paradas')]",
+				"[concat(variables('factoryId'), '/dataflows/df_bronze_vehiculos')]"
 			]
 		}
 	]

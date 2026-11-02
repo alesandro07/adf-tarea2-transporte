@@ -11,6 +11,9 @@
 		"ls_sql_erp_password": {
 			"value": ""
 		},
+		"ls_dw_transporte_password": {
+			"value": ""
+		},
 		"ls_blob_transporte_properties_typeProperties_url": {
 			"value": "https://sautransporte706fer01.dfs.core.windows.net/"
 		},
@@ -21,6 +24,15 @@
 			"value": "erp_transporte_db"
 		},
 		"ls_sql_erp_properties_typeProperties_userName": {
+			"value": "franklin"
+		},
+		"ls_dw_transporte_properties_typeProperties_server": {
+			"value": "sql-ucb-server-transporte-7036465645fer01.database.windows.net"
+		},
+		"ls_dw_transporte_properties_typeProperties_database": {
+			"value": "dw_transporte"
+		},
+		"ls_dw_transporte_properties_typeProperties_userName": {
 			"value": "franklin"
 		}
 	}

@@ -1276,6 +1276,88 @@
 				"[concat(variables('factoryId'), '/datasets/ds_dw_bronce_paradas')]",
 				"[concat(variables('factoryId'), '/datasets/DW_Silver_Paradas_SQL')]"
 			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/df_silver_vehiculos')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ds_raw_sql",
+								"type": "DatasetReference"
+							},
+							"name": "OrigenBronceVehiculos"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "DW_Silver_Vehiculos_SQL",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "derivedColumn1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          vehiculo_id as string,",
+						"          placa as string,",
+						"          modelo as string,",
+						"          capacidad as string,",
+						"          estado as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> OrigenBronceVehiculos",
+						"OrigenBronceVehiculos derive(vehiculo_id = trim(vehiculo_id),",
+						"          placa = upper(trim(placa)),",
+						"          modelo = upper(trim(modelo)),",
+						"          estado = upper(trim(estado)),",
+						"          capacidad = toInteger(trim(capacidad))) ~> derivedColumn1",
+						"derivedColumn1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          AnioFuente as integer,",
+						"          VehiculoId as string,",
+						"          Placa as string,",
+						"          TipoVehiculo as string,",
+						"          CapacidadEfectiva as integer,",
+						"          VigenciaDesde as date,",
+						"          VigenciaHasta as date,",
+						"          Estado as string",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          VehiculoId = vehiculo_id,",
+						"          Placa = placa,",
+						"          TipoVehiculo = modelo,",
+						"          CapacidadEfectiva = capacidad,",
+						"          Estado = estado",
+						"     )) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/ds_raw_sql')]",
+				"[concat(variables('factoryId'), '/datasets/DW_Silver_Vehiculos_SQL')]"
+			]
 		}
 	]
 }

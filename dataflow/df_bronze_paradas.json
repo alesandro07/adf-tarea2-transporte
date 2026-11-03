@@ -86,7 +86,7 @@
 				"     ignoreNoFilesFound: false) ~> source2",
 				"csvParadas, source1, source2 union(byName: true)~> union1",
 				"union1 select(mapColumn(",
-				"          AnioFuente,",
+				"          AnioFuente = NombreParada,",
 				"          ParadaHistoricaId,",
 				"          CodigoPublicado,",
 				"          NombreParada,",

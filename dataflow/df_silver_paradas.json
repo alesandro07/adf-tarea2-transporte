@@ -1,0 +1,79 @@
+{
+	"name": "df_silver_paradas",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_dw_bronce_paradas",
+						"type": "DatasetReference"
+					},
+					"name": "OrigenBronceParadas"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "DW_Silver_Paradas_SQL",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "derivedColumn1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          parada_id as string,",
+				"          codigo as string,",
+				"          nombre as string,",
+				"          latitud as string,",
+				"          longitud as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> OrigenBronceParadas",
+				"OrigenBronceParadas derive(parada_id = trim(parada_id),",
+				"          nombre = trim(nombre),",
+				"          codigo = trim(codigo),",
+				"          latitud = toFloat(latitud),",
+				"          longitud = toFloat(longitud)) ~> derivedColumn1",
+				"derivedColumn1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          AnioFuente as integer,",
+				"          ParadaHistoricaId as string,",
+				"          CodigoPublicado as string,",
+				"          NombreParada as string,",
+				"          Zona as string,",
+				"          Latitud as decimal(9,6),",
+				"          Longitud as decimal(9,6),",
+				"          VigenciaDesde as date,",
+				"          VigenciaHasta as date,",
+				"          Estado as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     truncate:true,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          ParadaHistoricaId = parada_id,",
+				"          CodigoPublicado = codigo,",
+				"          NombreParada = nombre,",
+				"          Latitud = latitud,",
+				"          Longitud = longitud",
+				"     )) ~> sink1"
+			]
+		}
+	}
+}

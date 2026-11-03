@@ -8,10 +8,9 @@
 		"annotations": [],
 		"type": "Excel",
 		"typeProperties": {
-			"sheetName": "Vehiculos",
 			"location": {
 				"type": "AzureBlobFSLocation",
-				"fileName": "operacion_2022.xlsx",
+				"fileName": "paradas.csv",
 				"fileSystem": "raw"
 			},
 			"firstRowAsHeader": true

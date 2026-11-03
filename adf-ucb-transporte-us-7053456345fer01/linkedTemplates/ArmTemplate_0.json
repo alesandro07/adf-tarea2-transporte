@@ -11,29 +11,17 @@
 			"type": "secureString",
 			"metadata": "Cadena protegida para \"accountKey\"de \"ls_blob_transporte\""
 		},
-		"ls_sql_erp_password": {
-			"type": "secureString",
-			"metadata": "Cadena protegida para \"password\"de \"ls_sql_erp\""
-		},
 		"ls_dw_transporte_password": {
 			"type": "secureString",
 			"metadata": "Cadena protegida para \"password\"de \"ls_dw_transporte\""
 		},
+		"ls_sql_erp_password": {
+			"type": "secureString",
+			"metadata": "Cadena protegida para \"password\"de \"ls_sql_erp\""
+		},
 		"ls_blob_transporte_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://sautransporte706fer01.dfs.core.windows.net/"
-		},
-		"ls_sql_erp_properties_typeProperties_server": {
-			"type": "string",
-			"defaultValue": "sql-ucb-server-transporte-7036465645fer01.database.windows.net"
-		},
-		"ls_sql_erp_properties_typeProperties_database": {
-			"type": "string",
-			"defaultValue": "erp_transporte_db"
-		},
-		"ls_sql_erp_properties_typeProperties_userName": {
-			"type": "string",
-			"defaultValue": "franklin"
 		},
 		"ls_dw_transporte_properties_typeProperties_server": {
 			"type": "string",
@@ -44,6 +32,18 @@
 			"defaultValue": "dw_transporte"
 		},
 		"ls_dw_transporte_properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": "franklin"
+		},
+		"ls_sql_erp_properties_typeProperties_server": {
+			"type": "string",
+			"defaultValue": "sql-ucb-server-transporte-7036465645fer01.database.windows.net"
+		},
+		"ls_sql_erp_properties_typeProperties_database": {
+			"type": "string",
+			"defaultValue": "erp_transporte_db"
+		},
+		"ls_sql_erp_properties_typeProperties_userName": {
 			"type": "string",
 			"defaultValue": "franklin"
 		}
@@ -64,6 +64,28 @@
 					"accountKey": {
 						"type": "SecureString",
 						"value": "[parameters('ls_blob_transporte_accountKey')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ls_dw_transporte')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureSqlDatabase",
+				"typeProperties": {
+					"server": "[parameters('ls_dw_transporte_properties_typeProperties_server')]",
+					"database": "[parameters('ls_dw_transporte_properties_typeProperties_database')]",
+					"encrypt": "mandatory",
+					"trustServerCertificate": false,
+					"authenticationType": "SQL",
+					"userName": "[parameters('ls_dw_transporte_properties_typeProperties_userName')]",
+					"password": {
+						"type": "SecureString",
+						"value": "[parameters('ls_dw_transporte_password')]"
 					}
 				}
 			},
@@ -92,26 +114,127 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/ls_dw_transporte')]",
-			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"name": "[concat(parameters('factoryName'), '/DW_Silver_Paradas_SQL')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
 			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_dw_transporte",
+					"type": "LinkedServiceReference"
+				},
 				"annotations": [],
-				"type": "AzureSqlDatabase",
-				"typeProperties": {
-					"server": "[parameters('ls_dw_transporte_properties_typeProperties_server')]",
-					"database": "[parameters('ls_dw_transporte_properties_typeProperties_database')]",
-					"encrypt": "mandatory",
-					"trustServerCertificate": false,
-					"authenticationType": "SQL",
-					"userName": "[parameters('ls_dw_transporte_properties_typeProperties_userName')]",
-					"password": {
-						"type": "SecureString",
-						"value": "[parameters('ls_dw_transporte_password')]"
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "AnioFuente",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "ParadaHistoricaId",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CodigoPublicado",
+						"type": "nvarchar"
+					},
+					{
+						"name": "NombreParada",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Zona",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Latitud",
+						"type": "decimal",
+						"precision": 9,
+						"scale": 6
+					},
+					{
+						"name": "Longitud",
+						"type": "decimal",
+						"precision": 9,
+						"scale": 6
+					},
+					{
+						"name": "VigenciaDesde",
+						"type": "date"
+					},
+					{
+						"name": "VigenciaHasta",
+						"type": "date"
+					},
+					{
+						"name": "Estado",
+						"type": "nvarchar"
 					}
+				],
+				"typeProperties": {
+					"schema": "silver",
+					"table": "Paradas"
 				}
 			},
-			"dependsOn": []
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_dw_transporte')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DW_Silver_Vehiculos_SQL')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_dw_transporte",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "AnioFuente",
+						"type": "smallint",
+						"precision": 5
+					},
+					{
+						"name": "VehiculoId",
+						"type": "nvarchar"
+					},
+					{
+						"name": "Placa",
+						"type": "nvarchar"
+					},
+					{
+						"name": "TipoVehiculo",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CapacidadEfectiva",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "VigenciaDesde",
+						"type": "date"
+					},
+					{
+						"name": "VigenciaHasta",
+						"type": "date"
+					},
+					{
+						"name": "Estado",
+						"type": "nvarchar"
+					}
+				],
+				"typeProperties": {
+					"schema": "silver",
+					"table": "Vehiculos"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_dw_transporte')]"
+			]
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/ds_dw_bronce_paradas')]",
@@ -428,129 +551,6 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/DW_Silver_Paradas_SQL')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "ls_dw_transporte",
-					"type": "LinkedServiceReference"
-				},
-				"annotations": [],
-				"type": "AzureSqlTable",
-				"schema": [
-					{
-						"name": "AnioFuente",
-						"type": "smallint",
-						"precision": 5
-					},
-					{
-						"name": "ParadaHistoricaId",
-						"type": "nvarchar"
-					},
-					{
-						"name": "CodigoPublicado",
-						"type": "nvarchar"
-					},
-					{
-						"name": "NombreParada",
-						"type": "nvarchar"
-					},
-					{
-						"name": "Zona",
-						"type": "nvarchar"
-					},
-					{
-						"name": "Latitud",
-						"type": "decimal",
-						"precision": 9,
-						"scale": 6
-					},
-					{
-						"name": "Longitud",
-						"type": "decimal",
-						"precision": 9,
-						"scale": 6
-					},
-					{
-						"name": "VigenciaDesde",
-						"type": "date"
-					},
-					{
-						"name": "VigenciaHasta",
-						"type": "date"
-					},
-					{
-						"name": "Estado",
-						"type": "nvarchar"
-					}
-				],
-				"typeProperties": {
-					"schema": "silver",
-					"table": "Paradas"
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/ls_dw_transporte')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/DW_Silver_Vehiculos_SQL')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "ls_dw_transporte",
-					"type": "LinkedServiceReference"
-				},
-				"annotations": [],
-				"type": "AzureSqlTable",
-				"schema": [
-					{
-						"name": "AnioFuente",
-						"type": "smallint",
-						"precision": 5
-					},
-					{
-						"name": "VehiculoId",
-						"type": "nvarchar"
-					},
-					{
-						"name": "Placa",
-						"type": "nvarchar"
-					},
-					{
-						"name": "TipoVehiculo",
-						"type": "nvarchar"
-					},
-					{
-						"name": "CapacidadEfectiva",
-						"type": "int",
-						"precision": 10
-					},
-					{
-						"name": "VigenciaDesde",
-						"type": "date"
-					},
-					{
-						"name": "VigenciaHasta",
-						"type": "date"
-					},
-					{
-						"name": "Estado",
-						"type": "nvarchar"
-					}
-				],
-				"typeProperties": {
-					"schema": "silver",
-					"table": "Vehiculos"
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/ls_dw_transporte')]"
-			]
-		},
-		{
 			"name": "[concat(parameters('factoryName'), '/df_bronze_paradas')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
@@ -694,6 +694,163 @@
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/ds_raw_csv')]",
 				"[concat(variables('factoryId'), '/datasets/ds_dw_bronce_paradas')]",
+				"[concat(variables('factoryId'), '/datasets/ds_raw_excel')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/df_bronze_vehiculos')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ds_raw_csv",
+								"type": "DatasetReference"
+							},
+							"name": "source1"
+						},
+						{
+							"dataset": {
+								"referenceName": "ds_raw_sql",
+								"type": "DatasetReference"
+							},
+							"name": "source2"
+						},
+						{
+							"dataset": {
+								"referenceName": "ds_raw_excel",
+								"type": "DatasetReference"
+							},
+							"name": "source3"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "ds_raw_sql",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "select1"
+						},
+						{
+							"name": "select2"
+						},
+						{
+							"name": "union1"
+						},
+						{
+							"name": "union2"
+						},
+						{
+							"name": "select3"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          nro_bus as string,",
+						"          placa as string,",
+						"          tipo_bus as string,",
+						"          capacidad as string,",
+						"          fecha_desde as string,",
+						"          fecha_hasta as string,",
+						"          estado as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> source1",
+						"source(output(",
+						"          vehiculo_id as string,",
+						"          placa as string,",
+						"          modelo as string,",
+						"          capacidad as string,",
+						"          estado as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> source2",
+						"source(output(",
+						"          nro_bus as string,",
+						"          placa as string,",
+						"          tipo_bus as string,",
+						"          capacidad as string,",
+						"          fecha_desde as string,",
+						"          fecha_hasta as string,",
+						"          estado as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> source3",
+						"source1 select(mapColumn(",
+						"          vehiculo_id = nro_bus,",
+						"          placa,",
+						"          tipo_vehiculo = tipo_bus,",
+						"          capacidad_efectiva = capacidad,",
+						"          vigente_desde = fecha_desde,",
+						"          vigente_hasta = fecha_hasta,",
+						"          ESTADO = estado",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> select1",
+						"source3 select(mapColumn(",
+						"          vehiculo_id = nro_bus,",
+						"          placa,",
+						"          tipo_vehiculo = tipo_bus,",
+						"          capacidad_efectiva = capacidad,",
+						"          vigente_desde = fecha_desde,",
+						"          vigente_hasta = fecha_hasta,",
+						"          ESTADO = estado",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> select2",
+						"select1, select3 union(byName: true)~> union1",
+						"union1, select2 union(byName: true)~> union2",
+						"source2 select(mapColumn(",
+						"          vehiculo_id,",
+						"          placa,",
+						"          tipo_vehiculo = modelo,",
+						"          capacidad_efectiva = capacidad,",
+						"          ESTADO = estado",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> select3",
+						"union2 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          AnioFuente as integer,",
+						"          ViajeId as string,",
+						"          RutaHistoricaId as string,",
+						"          VehiculoId as string,",
+						"          FechaServicio as date,",
+						"          HoraProgramada as timestamp,",
+						"          HoraSalida as timestamp,",
+						"          HoraLlegada as timestamp,",
+						"          ValidacionesTarjeta as integer,",
+						"          KmRecorridos as decimal(8,1),",
+						"          EstadoViaje as string",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/ds_raw_csv')]",
+				"[concat(variables('factoryId'), '/datasets/ds_raw_sql')]",
 				"[concat(variables('factoryId'), '/datasets/ds_raw_excel')]"
 			]
 		},
@@ -921,7 +1078,7 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/df_bronze_vehiculos')]",
+			"name": "[concat(parameters('factoryName'), '/df_silver_paradas')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -930,30 +1087,16 @@
 					"sources": [
 						{
 							"dataset": {
-								"referenceName": "ds_raw_csv",
+								"referenceName": "ds_dw_bronce_paradas",
 								"type": "DatasetReference"
 							},
-							"name": "source1"
-						},
-						{
-							"dataset": {
-								"referenceName": "ds_raw_sql",
-								"type": "DatasetReference"
-							},
-							"name": "source2"
-						},
-						{
-							"dataset": {
-								"referenceName": "ds_raw_excel",
-								"type": "DatasetReference"
-							},
-							"name": "source3"
+							"name": "OrigenBronceParadas"
 						}
 					],
 					"sinks": [
 						{
 							"dataset": {
-								"referenceName": "ds_raw_sql",
+								"referenceName": "DW_Silver_Paradas_SQL",
 								"type": "DatasetReference"
 							},
 							"name": "sink1"
@@ -961,120 +1104,62 @@
 					],
 					"transformations": [
 						{
-							"name": "select1"
-						},
-						{
-							"name": "select2"
-						},
-						{
-							"name": "union1"
-						},
-						{
-							"name": "union2"
-						},
-						{
-							"name": "select3"
+							"name": "derivedColumn1"
 						}
 					],
 					"scriptLines": [
 						"source(output(",
-						"          nro_bus as string,",
-						"          placa as string,",
-						"          tipo_bus as string,",
-						"          capacidad as string,",
-						"          fecha_desde as string,",
-						"          fecha_hasta as string,",
-						"          estado as string",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false) ~> source1",
-						"source(output(",
-						"          vehiculo_id as string,",
-						"          placa as string,",
-						"          modelo as string,",
-						"          capacidad as string,",
-						"          estado as string",
+						"          parada_id as string,",
+						"          codigo as string,",
+						"          nombre as string,",
+						"          latitud as string,",
+						"          longitud as string",
 						"     ),",
 						"     allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     isolationLevel: 'READ_UNCOMMITTED',",
-						"     format: 'table') ~> source2",
-						"source(output(",
-						"          nro_bus as string,",
-						"          placa as string,",
-						"          tipo_bus as string,",
-						"          capacidad as string,",
-						"          fecha_desde as string,",
-						"          fecha_hasta as string,",
-						"          estado as string",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false) ~> source3",
-						"source1 select(mapColumn(",
-						"          vehiculo_id = nro_bus,",
-						"          placa,",
-						"          tipo_vehiculo = tipo_bus,",
-						"          capacidad_efectiva = capacidad,",
-						"          vigente_desde = fecha_desde,",
-						"          vigente_hasta = fecha_hasta,",
-						"          ESTADO = estado",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> select1",
-						"source3 select(mapColumn(",
-						"          vehiculo_id = nro_bus,",
-						"          placa,",
-						"          tipo_vehiculo = tipo_bus,",
-						"          capacidad_efectiva = capacidad,",
-						"          vigente_desde = fecha_desde,",
-						"          vigente_hasta = fecha_hasta,",
-						"          ESTADO = estado",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> select2",
-						"select1, select3 union(byName: true)~> union1",
-						"union1, select2 union(byName: true)~> union2",
-						"source2 select(mapColumn(",
-						"          vehiculo_id,",
-						"          placa,",
-						"          tipo_vehiculo = modelo,",
-						"          capacidad_efectiva = capacidad,",
-						"          ESTADO = estado",
-						"     ),",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true) ~> select3",
-						"union2 sink(allowSchemaDrift: true,",
+						"     format: 'table') ~> OrigenBronceParadas",
+						"OrigenBronceParadas derive(parada_id = trim(parada_id),",
+						"          nombre = trim(nombre),",
+						"          codigo = trim(codigo),",
+						"          latitud = toFloat(latitud),",
+						"          longitud = toFloat(longitud)) ~> derivedColumn1",
+						"derivedColumn1 sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     input(",
 						"          AnioFuente as integer,",
-						"          ViajeId as string,",
-						"          RutaHistoricaId as string,",
-						"          VehiculoId as string,",
-						"          FechaServicio as date,",
-						"          HoraProgramada as timestamp,",
-						"          HoraSalida as timestamp,",
-						"          HoraLlegada as timestamp,",
-						"          ValidacionesTarjeta as integer,",
-						"          KmRecorridos as decimal(8,1),",
-						"          EstadoViaje as string",
+						"          ParadaHistoricaId as string,",
+						"          CodigoPublicado as string,",
+						"          NombreParada as string,",
+						"          Zona as string,",
+						"          Latitud as decimal(9,6),",
+						"          Longitud as decimal(9,6),",
+						"          VigenciaDesde as date,",
+						"          VigenciaHasta as date,",
+						"          Estado as string",
 						"     ),",
 						"     deletable:false,",
 						"     insertable:true,",
 						"     updateable:false,",
 						"     upsertable:false,",
+						"     truncate:true,",
 						"     format: 'table',",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true,",
-						"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          ParadaHistoricaId = parada_id,",
+						"          CodigoPublicado = codigo,",
+						"          NombreParada = nombre,",
+						"          Latitud = latitud,",
+						"          Longitud = longitud",
+						"     )) ~> sink1"
 					]
 				}
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/ds_raw_csv')]",
-				"[concat(variables('factoryId'), '/datasets/ds_raw_sql')]",
-				"[concat(variables('factoryId'), '/datasets/ds_raw_excel')]"
+				"[concat(variables('factoryId'), '/datasets/ds_dw_bronce_paradas')]",
+				"[concat(variables('factoryId'), '/datasets/DW_Silver_Paradas_SQL')]"
 			]
 		},
 		{

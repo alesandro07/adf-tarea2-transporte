@@ -21,8 +21,8 @@
 				"typeProperties": {
 					"scripts": [
 						{
-							"type": "Query",
-							"text": "DELETE FROM [nombre_real_de_paradas];\nDELETE FROM [nombre_real_de_vehiculos];"
+							"type": "NonQuery",
+							"text": "DELETE FROM silver.Vehiculos;\nDELETE FROM silver.Paradas;"
 						}
 					],
 					"scriptBlockExecutionTimeout": "02:00:00"

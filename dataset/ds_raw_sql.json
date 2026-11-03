@@ -61,8 +61,8 @@
 			}
 		],
 		"typeProperties": {
-			"schema": "bronce",
-			"table": "vehiculos"
+			"schema": "dbo",
+			"table": "ParadasAzure"
 		}
 	},
 	"type": "Microsoft.DataFactory/factories/datasets"

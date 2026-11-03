@@ -7,7 +7,28 @@
 		},
 		"annotations": [],
 		"type": "AzureSqlTable",
-		"schema": [],
+		"schema": [
+			{
+				"name": "parada_id",
+				"type": "varchar"
+			},
+			{
+				"name": "codigo",
+				"type": "varchar"
+			},
+			{
+				"name": "nombre",
+				"type": "varchar"
+			},
+			{
+				"name": "latitud",
+				"type": "varchar"
+			},
+			{
+				"name": "longitud",
+				"type": "varchar"
+			}
+		],
 		"typeProperties": {
 			"schema": "bronce",
 			"table": "paradas"

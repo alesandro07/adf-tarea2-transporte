@@ -1142,7 +1142,6 @@
 						"     insertable:true,",
 						"     updateable:false,",
 						"     upsertable:false,",
-						"     truncate:true,",
 						"     format: 'table',",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true,",
@@ -1208,7 +1207,8 @@
 						"          placa = upper(trim(placa)),",
 						"          modelo = upper(trim(modelo)),",
 						"          estado = upper(trim(estado)),",
-						"          capacidad = toInteger(trim(capacidad))) ~> derivedColumn1",
+						"          capacidad = toInteger(trim(capacidad)),",
+						"          TipoVehiculo = 'SIN TIPO') ~> derivedColumn1",
 						"derivedColumn1 sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     input(",
@@ -1232,7 +1232,7 @@
 						"     mapColumn(",
 						"          VehiculoId = vehiculo_id,",
 						"          Placa = placa,",
-						"          TipoVehiculo = modelo,",
+						"          TipoVehiculo,",
 						"          CapacidadEfectiva = capacidad,",
 						"          Estado = estado",
 						"     )) ~> sink1"
@@ -1385,7 +1385,7 @@
 							"scripts": [
 								{
 									"type": "Query",
-									"text": "DELETE FROM DW_Silver_Paradas_SQL;\nDELETE FROM DW_Silver_Vehiculos_SQL;"
+									"text": "DELETE FROM [nombre_real_de_paradas];\nDELETE FROM [nombre_real_de_vehiculos];"
 								}
 							],
 							"scriptBlockExecutionTimeout": "02:00:00"

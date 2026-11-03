@@ -1102,11 +1102,7 @@
 							"name": "sink1"
 						}
 					],
-					"transformations": [
-						{
-							"name": "derivedColumn1"
-						}
-					],
+					"transformations": [],
 					"scriptLines": [
 						"source(output(",
 						"          parada_id as string,",
@@ -1119,12 +1115,7 @@
 						"     validateSchema: false,",
 						"     isolationLevel: 'READ_UNCOMMITTED',",
 						"     format: 'table') ~> OrigenBronceParadas",
-						"OrigenBronceParadas derive(parada_id = trim(parada_id),",
-						"          nombre = trim(nombre),",
-						"          codigo = trim(codigo),",
-						"          latitud = toFloat(latitud),",
-						"          longitud = toFloat(longitud)) ~> derivedColumn1",
-						"derivedColumn1 sink(allowSchemaDrift: true,",
+						"OrigenBronceParadas sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     input(",
 						"          AnioFuente as integer,",
@@ -1145,14 +1136,7 @@
 						"     format: 'table',",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true,",
-						"     errorHandlingOption: 'stopOnFirstError',",
-						"     mapColumn(",
-						"          ParadaHistoricaId = parada_id,",
-						"          CodigoPublicado = codigo,",
-						"          NombreParada = nombre,",
-						"          Latitud = latitud,",
-						"          Longitud = longitud",
-						"     )) ~> sink1"
+						"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
 					]
 				}
 			},
@@ -1384,8 +1368,8 @@
 						"typeProperties": {
 							"scripts": [
 								{
-									"type": "Query",
-									"text": "DELETE FROM [nombre_real_de_paradas];\nDELETE FROM [nombre_real_de_vehiculos];"
+									"type": "NonQuery",
+									"text": "DELETE FROM silver.Vehiculos;\nDELETE FROM silver.Paradas;"
 								}
 							],
 							"scriptBlockExecutionTimeout": "02:00:00"

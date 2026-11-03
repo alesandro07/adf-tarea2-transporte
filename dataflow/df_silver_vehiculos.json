@@ -42,7 +42,8 @@
 				"          placa = upper(trim(placa)),",
 				"          modelo = upper(trim(modelo)),",
 				"          estado = upper(trim(estado)),",
-				"          capacidad = toInteger(trim(capacidad))) ~> derivedColumn1",
+				"          capacidad = toInteger(trim(capacidad)),",
+				"          TipoVehiculo = 'SIN TIPO') ~> derivedColumn1",
 				"derivedColumn1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
@@ -66,7 +67,7 @@
 				"     mapColumn(",
 				"          VehiculoId = vehiculo_id,",
 				"          Placa = placa,",
-				"          TipoVehiculo = modelo,",
+				"          TipoVehiculo,",
 				"          CapacidadEfectiva = capacidad,",
 				"          Estado = estado",
 				"     )) ~> sink1"

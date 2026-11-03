@@ -22,7 +22,7 @@
 					"scripts": [
 						{
 							"type": "Query",
-							"text": "DELETE FROM DW_Silver_Paradas_SQL;\nDELETE FROM DW_Silver_Vehiculos_SQL;"
+							"text": "DELETE FROM [nombre_real_de_paradas];\nDELETE FROM [nombre_real_de_vehiculos];"
 						}
 					],
 					"scriptBlockExecutionTimeout": "02:00:00"

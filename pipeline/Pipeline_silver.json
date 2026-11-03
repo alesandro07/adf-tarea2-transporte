@@ -31,14 +31,7 @@
 			{
 				"name": "df_silver_paradas",
 				"type": "ExecuteDataFlow",
-				"dependsOn": [
-					{
-						"activity": "Script1",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					}
-				],
+				"dependsOn": [],
 				"policy": {
 					"timeout": "0.12:00:00",
 					"retry": 0,
@@ -62,14 +55,7 @@
 			{
 				"name": "df_silver_vehiculos",
 				"type": "ExecuteDataFlow",
-				"dependsOn": [
-					{
-						"activity": "df_silver_paradas",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					}
-				],
+				"dependsOn": [],
 				"policy": {
 					"timeout": "0.12:00:00",
 					"retry": 0,
